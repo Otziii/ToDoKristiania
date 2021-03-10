@@ -2,7 +2,7 @@ package com.jorfald.todokristiania
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.jorfald.todokristiania.ui.main.MainFragment
+import com.jorfald.todokristiania.main.MainFragment
 
 class MainActivity : AppCompatActivity() {
 

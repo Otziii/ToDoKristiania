@@ -1,4 +1,4 @@
-package com.jorfald.todokristiania.ui.main
+package com.jorfald.todokristiania.views
 
 import android.content.Context
 import android.view.LayoutInflater

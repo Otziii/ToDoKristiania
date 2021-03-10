@@ -1,4 +1,4 @@
-package com.jorfald.todokristiania.ui.main
+package com.jorfald.todokristiania.main
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jorfald.todokristiania.R
+import com.jorfald.todokristiania.database.AppDatabase
+import com.jorfald.todokristiania.database.dao.ToDoDAO
+import com.jorfald.todokristiania.managers.DialogManager
 
 class MainFragment : Fragment() {
 
@@ -18,6 +21,8 @@ class MainFragment : Fragment() {
     private lateinit var fab: FloatingActionButton
 
     private lateinit var toDoAdapter: ToDoAdapter
+
+    private lateinit var toDoDAO: ToDoDAO
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -29,11 +34,6 @@ class MainFragment : Fragment() {
         return view
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -42,7 +42,7 @@ class MainFragment : Fragment() {
                     //TODO: Delete item in database
                 },
                 { changedItem ->
-                    //TODO: Change item in database
+                    //TODO: Update item in database
                 }
         )
         todoRecyclerView.apply {
@@ -51,9 +51,29 @@ class MainFragment : Fragment() {
         }
 
         fab.setOnClickListener {
-            //TODO: Add new item in database
+            DialogManager.showInputDialog(
+                    requireContext()
+            ) { toDoText ->
+                viewModel.saveToDoItem(toDoDAO, toDoText) {
+                    updateList()
+                }
+            }
         }
+    }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        toDoDAO = AppDatabase.getDatabase(requireContext()).toDoDAO()
 
+        updateList()
+    }
+
+    private fun updateList() {
+        viewModel.updateList(toDoDAO) { list ->
+            activity?.runOnUiThread {
+                toDoAdapter.setData(list)
+            }
+        }
     }
 }

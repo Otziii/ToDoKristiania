@@ -1,7 +1,9 @@
-package com.jorfald.todokristiania.ui.main
+package com.jorfald.todokristiania.main
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.jorfald.todokristiania.database.entities.ToDoItem
+import com.jorfald.todokristiania.views.ToDoListView
 
 class ToDoAdapter(
     private val deleteListener: (ToDoItem) -> Unit,
@@ -9,7 +11,7 @@ class ToDoAdapter(
 ) : RecyclerView.Adapter<ToDoAdapter.ViewHolder>() {
     private var dataSet: List<ToDoItem> = listOf()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = ToDoListView(parent.context)
 
         view.layoutParams = ViewGroup.LayoutParams(
