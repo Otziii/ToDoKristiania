@@ -16,4 +16,7 @@ interface ToDoDAO {
 
     @Query("SELECT * FROM ToDo")
     fun getAllItems(): List<ToDoItem>
+
+    @Query("SELECT * FROM ToDo WHERE lower(title) LIKE (:equalString || '%')")
+    fun getItemsEqualsTo(equalString: String): List<ToDoItem>
 }

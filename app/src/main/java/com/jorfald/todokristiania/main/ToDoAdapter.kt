@@ -6,8 +6,8 @@ import com.jorfald.todokristiania.database.entities.ToDoItem
 import com.jorfald.todokristiania.views.ToDoListView
 
 class ToDoAdapter(
-    private val deleteListener: (ToDoItem) -> Unit,
-    private val completedListener: (ToDoItem) -> Unit
+    private val deleteCallback: (ToDoItem) -> Unit,
+    private val completedCallback: (ToDoItem) -> Unit
 ) : RecyclerView.Adapter<ToDoAdapter.ViewHolder>() {
     private var dataSet: List<ToDoItem> = listOf()
 
@@ -28,11 +28,11 @@ class ToDoAdapter(
         holder.view.setDone(todoItem.isCompleted)
 
         holder.view.setDeleteButtonClickListener {
-            deleteListener(todoItem)
+            deleteCallback(todoItem)
         }
 
         holder.view.setCompletedClickListener {
-            completedListener(
+            completedCallback(
                 todoItem.copy(isCompleted = it)
             )
         }

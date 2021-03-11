@@ -24,8 +24,10 @@ class MainFragment : Fragment() {
 
     private lateinit var toDoDAO: ToDoDAO
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         val view = inflater.inflate(R.layout.main_fragment, container, false)
 
         todoRecyclerView = view.findViewById(R.id.todo_recycler)
@@ -38,12 +40,14 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         toDoAdapter = ToDoAdapter(
-                { itemToDelete ->
-                    //TODO: Delete item in database
-                },
-                { changedItem ->
-                    //TODO: Update item in database
+            { itemToDelete ->
+                viewModel.deleteItem(toDoDAO, itemToDelete) {
+                    updateList()
                 }
+            },
+            { changedItem ->
+                viewModel.changeItem(toDoDAO, changedItem) {}
+            }
         )
         todoRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -52,7 +56,7 @@ class MainFragment : Fragment() {
 
         fab.setOnClickListener {
             DialogManager.showInputDialog(
-                    requireContext()
+                requireContext()
             ) { toDoText ->
                 viewModel.saveToDoItem(toDoDAO, toDoText) {
                     updateList()
@@ -70,10 +74,19 @@ class MainFragment : Fragment() {
     }
 
     private fun updateList() {
+
+        viewModel.getListWithStartingChar(toDoDAO, "") { list ->
+            activity?.runOnUiThread {
+                toDoAdapter.setData(list)
+            }
+        }
+
+        /*
         viewModel.updateList(toDoDAO) { list ->
             activity?.runOnUiThread {
                 toDoAdapter.setData(list)
             }
         }
+        */
     }
 }
