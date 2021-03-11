@@ -1,1 +1,1 @@
-# ToDoKristiania app - ToDo app that shows room
+# ToDoKristiania app - ToDo app that shows how to use Room
