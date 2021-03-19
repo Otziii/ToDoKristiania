@@ -19,6 +19,7 @@ class MainFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
     private lateinit var todoRecyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
+    private lateinit var filterFab: FloatingActionButton
 
     private lateinit var toDoAdapter: ToDoAdapter
 
@@ -28,10 +29,13 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
         val view = inflater.inflate(R.layout.main_fragment, container, false)
 
         todoRecyclerView = view.findViewById(R.id.todo_recycler)
         fab = view.findViewById(R.id.todo_fab)
+        filterFab = view.findViewById(R.id.filter_fab)
 
         return view
     }
@@ -39,14 +43,32 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bindObservers()
+        bindButtons()
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        toDoDAO = AppDatabase.getDatabase(requireContext()).toDoDAO()
+
+        updateList()
+    }
+
+    private fun bindObservers() {
+        viewModel.allToDoItems.observe(viewLifecycleOwner, { newList ->
+            activity?.runOnUiThread {
+                toDoAdapter.setData(newList)
+            }
+        })
+    }
+
+    private fun bindButtons() {
         toDoAdapter = ToDoAdapter(
             { itemToDelete ->
-                viewModel.deleteItem(toDoDAO, itemToDelete) {
-                    updateList()
-                }
+                viewModel.deleteItem(toDoDAO, itemToDelete)
             },
             { changedItem ->
-                viewModel.changeItem(toDoDAO, changedItem) {}
+                viewModel.changeItem(toDoDAO, changedItem)
             }
         )
         todoRecyclerView.apply {
@@ -56,37 +78,28 @@ class MainFragment : Fragment() {
 
         fab.setOnClickListener {
             DialogManager.showInputDialog(
-                requireContext()
+                requireContext(),
+                "Hva skal du gjøre?"
             ) { toDoText ->
-                viewModel.saveToDoItem(toDoDAO, toDoText) {
+                viewModel.saveToDoItem(toDoDAO, toDoText)
+            }
+        }
+
+        filterFab.setOnClickListener {
+            DialogManager.showInputDialog(
+                requireContext(),
+                "Skriv inn filtrering"
+            ) { toDoText ->
+                if (toDoText.isNotEmpty()) {
+                    viewModel.getListWithStartingChar(toDoDAO, toDoText)
+                } else {
                     updateList()
                 }
             }
         }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        toDoDAO = AppDatabase.getDatabase(requireContext()).toDoDAO()
-
-        updateList()
-    }
-
     private fun updateList() {
-
-        viewModel.getListWithStartingChar(toDoDAO, "") { list ->
-            activity?.runOnUiThread {
-                toDoAdapter.setData(list)
-            }
-        }
-
-        /*
-        viewModel.updateList(toDoDAO) { list ->
-            activity?.runOnUiThread {
-                toDoAdapter.setData(list)
-            }
-        }
-        */
+        viewModel.fetchList(toDoDAO)
     }
 }

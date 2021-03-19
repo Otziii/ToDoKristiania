@@ -8,9 +8,9 @@ import androidx.appcompat.app.AlertDialog
 
 class DialogManager {
     companion object {
-        fun showInputDialog(context: Context, callback: (String) -> Unit) {
+        fun showInputDialog(context: Context, title: String, callback: (String) -> Unit) {
             val builder: AlertDialog.Builder = AlertDialog.Builder(context)
-            builder.setTitle("Add to-do item")
+            builder.setTitle(title)
 
             val input = EditText(context)
             input.inputType = InputType.TYPE_CLASS_TEXT
